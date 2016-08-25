@@ -64,13 +64,13 @@ public abstract class ProgrammableReactiveProcessorIntegrationTests {
 		}
 	}
 	
-	@WebIntegrationTest({"code=return input -> input.map(o -> Integer.parseInt(o.toString())).buffer(3).map(is->{int sum=0;for (int i: is) sum+=i; return sum;});"})
+	@WebIntegrationTest({"code=return input -> input.map(s->Integer.valueOf(s.toString())).buffer(3).map(is->{int sum=0;for (int i: is) sum+=i; return sum;});"})
 	public static class SumIntegrationTests extends ProgrammableReactiveProcessorIntegrationTests {
 		@Test
 		public void testBasic() {
-			channels.input().send(new GenericMessage<Integer>(100));
-			channels.input().send(new GenericMessage<Integer>(200));
-			channels.input().send(new GenericMessage<Integer>(300));
+			channels.input().send(new GenericMessage<String>("100"));
+			channels.input().send(new GenericMessage<String>("200"));
+			channels.input().send(new GenericMessage<String>("300"));
 			channels.input().send(new GenericMessage<Integer>(400));
 			channels.input().send(new GenericMessage<Integer>(500));
 			channels.input().send(new GenericMessage<Integer>(600));

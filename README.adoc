@@ -26,37 +26,37 @@ $> mvn -s .settings.xml clean install
 ## Running the Application
 
 ```
-$> java -jar target/programmable-reactive-processor-${version}-exec.jar
+$> java -jar target/programmable-reactive-processor-1.0.0.BUILD-SNAPSHOT.jar --code="return m->m.map(s.toUpperCase());"
 ```
 
 
-## Installing in Spring Cloud Dataflow
+## Installing in Spring Cloud Data Flow
 
 ```
-XD> module register --name prxj --coordinates org.springframework.cloud.stream.module:programmable-rxjava-processor:jar:exec:1.0.0.BUILD-SNAPSHOT --type processor
+dataflow> app register --name rx --uri maven://org.springframework.cloud.stream.app:programmable-reactive-processor:1.0.0.BUILD-SNAPSHOT --type processor
 ```
 
-## Using in a Spring Cloud Dataflow stream definition
+## Using in a Spring Cloud Data Flow stream definition
 
 Compute the time every second, buffer up 5 of them then pick the first of the 5, discarding the rest:
 ```
-XD> stream create --deploy true --name demo --definition "time | prxj --code=\"return input -> input.buffer(5).map(list->list.get(0));\" | log"
+dataflow> stream create --deploy true --name demo --definition "time | rx --code=\"return input -> input.buffer(5).map(list->list.get(0));\" | log"
 ```
 
 Produce the time in seconds, break it into threes, compute the average of each group of 3:
 ```
-XD> stream create --deploy true --name demo2 --definition "time --dateFormat=ss | prxj --code=\"return input -> input.map(s->Integer.valueOf((String)s)).window(3).flatMap(MathObservable::averageInteger);\" | log"
+dataflow> stream create --deploy true --name demo2 --definition "time --dateFormat=ss | rx --code=\"return input -> input.map(s->Integer.valueOf(s.toString())).buffer(3).map(is->{int sum=0;for (int i: is) sum+=i; return sum;});\" | log"
 ```
 
 ## Usage with Flo
 
-With Flo you can type in the RxJava code in a proper editor window, here are some example streams and the
-RxJava code you might write in the property editor for the prxj module:
+With Flo you can type in the Reactive code in a proper editor window, here are some example streams and the
+Reactive code you might write in the property editor for the rx module:
 
 1. Compute the time every second, buffer up 5 of them then pick the first of the 5, discarding the rest:
 
 ```
-time | prxj | log
+time | rx | log
 ```
 
 ```
@@ -65,13 +65,13 @@ return input -> input
 	.map(list->list.get(0));
 ```
 
-2. Produce the time in seconds, break it into threes, compute the average of each group of 3: 
+2. Produce the time in seconds, break it into threes, sum each group of 3: 
 ```
-time --dateFormat=ss | prxj | log
+time --dateFormat=ss | rx | log
 ```
 ```
 return input -> input
-	.map(s->Integer.valueOf((String)s))
-	.window(3)
-	.flatMap(MathObservable::averageInteger);
+	.map(s->Integer.valueOf(s.toString()))
+	.buffer(3)
+	.map(is->{int sum=0;for (int i: is) sum+=i; return sum;});
 ```
