@@ -47,7 +47,7 @@ Produce the time in seconds, break it into threes, compute the average of each g
 dataflow> stream create --deploy true --name demo2 --definition "time --dateFormat=ss | rx --code=\"return input -> input.map(s->Integer.valueOf(s.toString())).buffer(3).map(is->{int sum=0;for (int i: is) sum+=i; return sum;});\" | log"
 ```
 
-## Usage with Flo
+## Usage with Flo (COMING SOON!)
 
 With Flo you can type in the Reactive code in a proper editor window, here are some example streams and the
 Reactive code you might write in the property editor for the rx module:
