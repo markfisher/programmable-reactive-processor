@@ -26,9 +26,8 @@ $> mvn -s .settings.xml clean install
 ## Running the Application
 
 ```
-$> java -jar target/programmable-reactive-processor-1.0.0.BUILD-SNAPSHOT.jar --code="return m->m.map(s.toUpperCase());"
+$> java -jar target/programmable-reactive-processor-1.0.0.BUILD-SNAPSHOT.jar --code="return m->m.map(s->s.toString().toUpperCase());"
 ```
-
 
 ## Installing in Spring Cloud Data Flow
 
