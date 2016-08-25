@@ -197,13 +197,13 @@ public class IterableClasspathTests {
 		assertEquals("Foo.class", fooJfo.getName());
 		File outerjarFile = new File(NestedJarPath);
 		String outerjarpath = outerjarFile.getAbsolutePath();
-		assertEquals("zip:"+outerjarpath+"!lib/innerjar.jar!Foo.class",fooJfo.toUri().toString());
+		assertEquals("zip:"+outerjarpath+"!BOOT-INF/lib/innerjar.jar!Foo.class",fooJfo.toUri().toString());
 		assertNotNull(fooJfo);
 		assertTrue(iterator.hasNext());
 
 		JavaFileObject barJfo = iterator.next(); // Is a NestedZipEntryJavaFileObject
 		assertEquals("Bar.class", barJfo.getName());
-		assertEquals("zip:"+outerjarpath+"!lib/innerjar.jar!Bar.class",barJfo.toUri().toString());
+		assertEquals("zip:"+outerjarpath+"!BOOT-INF/lib/innerjar.jar!Bar.class",barJfo.toUri().toString());
 		assertFalse(iterator.hasNext());
 		
 		verifyClassFileJfo(barJfo);

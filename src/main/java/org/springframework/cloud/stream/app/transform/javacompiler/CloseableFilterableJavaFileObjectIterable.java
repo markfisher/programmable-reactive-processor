@@ -30,6 +30,9 @@ public abstract class CloseableFilterableJavaFileObjectIterable implements Itera
 
 //	private final static Logger logger = LoggerFactory.getLogger(CloseableFilterableJavaFileObjectIterable.class);
 
+	private final static boolean BOOT_PACKAGING_AWARE = true;
+	private final static String BOOT_PACKAGING_PREFIX_FOR_CLASSES = "BOOT-INF/classes/";
+
 	// If set specifies the package the iterator consumer is interested in. Only
 	// return results in this package.
 	private String packageNameFilter;
@@ -60,11 +63,22 @@ public abstract class CloseableFilterableJavaFileObjectIterable implements Itera
 		if (packageNameFilter == null) {
 			return true;
 		}
+		boolean accept;
 		if (includeSubpackages == true) {
-			return name.startsWith(packageNameFilter);
+			accept = name.startsWith(packageNameFilter);
+			if (!accept && BOOT_PACKAGING_AWARE) {
+				accept = name.startsWith(BOOT_PACKAGING_PREFIX_FOR_CLASSES) &&
+						name.indexOf(packageNameFilter)==BOOT_PACKAGING_PREFIX_FOR_CLASSES.length();
+			}
 		} else {
-			return name.startsWith(packageNameFilter) && name.indexOf("/",packageNameFilter.length())==-1;
+			accept = name.startsWith(packageNameFilter) && name.indexOf("/",packageNameFilter.length())==-1;
+			if (!accept && BOOT_PACKAGING_AWARE) {
+				accept = name.startsWith(BOOT_PACKAGING_PREFIX_FOR_CLASSES) &&
+						name.indexOf(packageNameFilter)==BOOT_PACKAGING_PREFIX_FOR_CLASSES.length() &&
+						name.indexOf("/",BOOT_PACKAGING_PREFIX_FOR_CLASSES.length()+packageNameFilter.length())==-1;
+			}
 		}
+		return accept;
 	}
 
 	abstract void close();

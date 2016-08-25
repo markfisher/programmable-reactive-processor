@@ -2,12 +2,13 @@
 echo "hello" > Foo.class
 echo "world" > Bar.class
 jar -cvMf innerjar.jar Foo.class Bar.class
-mkdir lib
-mv innerjar.jar lib
-jar -cvMf outerjar.jar lib
+mkdir -p BOOT-INF/lib
+mv innerjar.jar BOOT-INF/lib
+jar -cvMf outerjar.jar BOOT-INF/lib
 rm Foo.class Bar.class
-rm lib/innerjar.jar
-rmdir lib
+rm BOOT-INF/lib/innerjar.jar
+rmdir BOOT-INF/lib
+rmdir BOOT-INF
 
 # Build simplejar.jar which has com/foo/Xxx.class and com/bar/Yyy.class in it
 mkdir -p com/foo

@@ -45,6 +45,8 @@ public class IterableClasspath extends CloseableFilterableJavaFileObjectIterable
 
 	private static Logger logger = LoggerFactory.getLogger(IterableClasspath.class);
 	
+	private static final String BOOT_PACKAGING_PREFIX_FOR_LIBRARIES = "BOOT-INF/lib/";
+	
 	private List<File> classpathEntries = new ArrayList<>();
 	
 	private List<ZipFile> openArchives = new ArrayList<>();
@@ -128,7 +130,7 @@ public class IterableClasspath extends CloseableFilterableJavaFileObjectIterable
 											nextEntry = new ZipEntryJavaFileObject(openFile, openArchive, entry);
 										}
 										return;
-									} else if (nestedZip == null && entryName.startsWith("lib/") && entryName.endsWith(".jar")) {
+									} else if (nestedZip == null && entryName.startsWith(BOOT_PACKAGING_PREFIX_FOR_LIBRARIES) && entryName.endsWith(".jar")) {
 										// nested jar in uber jar
 										logger.debug("opening nested archive {}",entry.getName());
 										ZipInputStream zis = new ZipInputStream(openArchive.getInputStream(entry));
