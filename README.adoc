@@ -1,0 +1,77 @@
+= Spring Cloud Stream Programmable Reactive Transform Processor
+
+A *Spring Cloud Stream* app that takes java code as a parameter and uses it
+to configure a Reactor based transform processor. The code supplied must return something that
+satisfies `ReactiveProcessor<Object,Object>`.
+
+== Requirements
+
+* Java 8 or Above
+
+== Code Tour
+
+ProgrammableReactiveProcessorApplication:: the Spring Boot Main Application
+ProgrammableReactiveProcessorProperties:: defines the configuration properties that are available to the Reactive Transform Processor
+  * code: the snippet of java code that defines the Reactive behaviour, for example: `return input -> input.buffer(5).map(list->list.get(0));`
+RuntimeJavaCompiler:: a helper service that can run a Java Compiler at runtime
+ReactiveTransformer:: the main Reactive processor which delegates to the code compiled at runtime
+ProcessorFactory:: the interface implemented by the runtime compiled code
+
+## Building with Maven
+
+```
+$> mvn -s .settings.xml clean install
+```
+
+## Running the Application
+
+```
+$> java -jar target/programmable-reactive-processor-${version}-exec.jar
+```
+
+
+## Installing in Spring Cloud Dataflow
+
+```
+XD> module register --name prxj --coordinates org.springframework.cloud.stream.module:programmable-rxjava-processor:jar:exec:1.0.0.BUILD-SNAPSHOT --type processor
+```
+
+## Using in a Spring Cloud Dataflow stream definition
+
+Compute the time every second, buffer up 5 of them then pick the first of the 5, discarding the rest:
+```
+XD> stream create --deploy true --name demo --definition "time | prxj --code=\"return input -> input.buffer(5).map(list->list.get(0));\" | log"
+```
+
+Produce the time in seconds, break it into threes, compute the average of each group of 3:
+```
+XD> stream create --deploy true --name demo2 --definition "time --dateFormat=ss | prxj --code=\"return input -> input.map(s->Integer.valueOf((String)s)).window(3).flatMap(MathObservable::averageInteger);\" | log"
+```
+
+## Usage with Flo
+
+With Flo you can type in the RxJava code in a proper editor window, here are some example streams and the
+RxJava code you might write in the property editor for the prxj module:
+
+1. Compute the time every second, buffer up 5 of them then pick the first of the 5, discarding the rest:
+
+```
+time | prxj | log
+```
+
+```
+return input -> input
+	.buffer(5)
+	.map(list->list.get(0));
+```
+
+2. Produce the time in seconds, break it into threes, compute the average of each group of 3: 
+```
+time --dateFormat=ss | prxj | log
+```
+```
+return input -> input
+	.map(s->Integer.valueOf((String)s))
+	.window(3)
+	.flatMap(MathObservable::averageInteger);
+```
