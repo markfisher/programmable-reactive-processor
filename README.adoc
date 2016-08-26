@@ -42,7 +42,7 @@ Compute the time every second, buffer up 5 of them then pick the first of the 5,
 dataflow> stream create --deploy true --name demo --definition "time | rx --code=\"return input -> input.buffer(5).map(list->list.get(0));\" | log"
 ```
 
-Produce the time in seconds, break it into threes, compute the average of each group of 3:
+Produce the time in seconds, break it into threes, compute the sum of each group of 3:
 ```
 dataflow> stream create --deploy true --name demo2 --definition "time --dateFormat=ss | rx --code=\"return input -> input.map(s->Integer.valueOf(s.toString())).buffer(3).map(is->{int sum=0;for (int i: is) sum+=i; return sum;});\" | log"
 ```
