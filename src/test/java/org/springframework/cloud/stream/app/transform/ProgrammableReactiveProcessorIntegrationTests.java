@@ -23,14 +23,13 @@ import static org.springframework.cloud.stream.test.matcher.MessageQueueMatcher.
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.SpringApplicationConfiguration;
-import org.springframework.boot.test.WebIntegrationTest;
+import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.cloud.stream.annotation.Bindings;
 import org.springframework.cloud.stream.messaging.Processor;
 import org.springframework.cloud.stream.test.binder.MessageCollector;
 import org.springframework.messaging.support.GenericMessage;
 import org.springframework.test.annotation.DirtiesContext;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.context.junit4.SpringRunner;
 
 /**
  * Integration Tests for the Programmable Reactive Processor.
@@ -38,9 +37,8 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
  * @author Andy Clement
  * @author Mark Fisher
  */
-@RunWith(SpringJUnit4ClassRunner.class)
-@SpringApplicationConfiguration(classes = ProgrammableReactiveProcessorApplication.class)
-@WebIntegrationTest(randomPort = true)
+@RunWith(SpringRunner.class)
+@SpringBootTest
 @DirtiesContext
 public abstract class ProgrammableReactiveProcessorIntegrationTests {
 
@@ -51,7 +49,7 @@ public abstract class ProgrammableReactiveProcessorIntegrationTests {
 	@Autowired
 	protected MessageCollector collector;
 	
-	@WebIntegrationTest({"code=return input -> input.buffer(5).map(list->list.get(4));"})
+	@SpringBootTest(properties="code=return input -> input.buffer(5).map(list->list.get(4));")
 	public static class BasicIntegrationTests extends ProgrammableReactiveProcessorIntegrationTests {
 		@Test
 		public void testBasic() {
@@ -64,7 +62,7 @@ public abstract class ProgrammableReactiveProcessorIntegrationTests {
 		}
 	}
 	
-	@WebIntegrationTest({"code=return input -> input.map(s->Integer.valueOf(s.toString())).buffer(3).map(is->{int sum=0;for (int i: is) sum+=i; return sum;});"})
+	@SpringBootTest(properties="code=return input -> input.map(s->Integer.valueOf(s.toString())).buffer(3).map(is->{int sum=0;for (int i: is) sum+=i; return sum;});")
 	public static class SumIntegrationTests extends ProgrammableReactiveProcessorIntegrationTests {
 		@Test
 		public void testBasic() {
@@ -79,7 +77,7 @@ public abstract class ProgrammableReactiveProcessorIntegrationTests {
 		}
 	}
 
-	@WebIntegrationTest({"code=class Foo { public int x() { return 4; }} return input -> input.map(s->((Integer)s)*new Foo().x());"})
+	@SpringBootTest(properties="code=class Foo { public int x() { return 4; }} return input -> input.map(s->((Integer)s)*new Foo().x());")
 	public static class LocalClassIntegrationTests extends ProgrammableReactiveProcessorIntegrationTests {
 		@Test
 		public void testBasic() {
